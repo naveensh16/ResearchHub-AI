@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Sections - {{ paper.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">
+            <i class="fas fa-robot mr-2 text-indigo-600"></i>
+            AI Section Generation
+        </h1>
+        <p class="text-gray-600 mt-2">{{ paper.title }}</p>
+    </div>
+    
+    <!-- Paper Context -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Paper Context</h2>
+        <div class="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+                <span class="font-semibold text-gray-700">Domain:</span>
+                <span class="text-gray-600">{{ paper.domain }}</span>
+            </div>
+            <div>
+                <span class="font-semibold text-gray-700">Keywords:</span>
+                <span class="text-gray-600">{{ paper.keywords }}</span>
+            </div>
+            <div class="md:col-span-2">
+                <span class="font-semibold text-gray-700">Objective:</span>
+                <p class="text-gray-600 mt-1">{{ paper.objective }}</p>
+            </div>
+            <div>
+                <span class="font-semibold text-gray-700">Methodology:</span>
+                <span class="text-gray-600">{{ paper.method_type }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Section Selection -->
+    <form method="POST" class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">
+            Select Sections to Generate
+        </h2>
+        
+        <p class="text-gray-600 mb-6">
+            Choose which sections you want AI to generate. You can always edit them later.
+        </p>
+        
+        <div class="space-y-3">
+            <!-- Abstract -->
+            <label class="flex items-start p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" name="sections" value="abstract" class="mt-1 mr-3 h-5 w-5 text-indigo-600">
+                <div class="flex-1">
+                    <div class="font-semibold text-gray-900">Abstract</div>
+                    <div class="text-sm text-gray-600">Concise summary of the entire paper (200-250 words)</div>
+                </div>
+            </label>
+            
+            <!-- Introduction -->
+            <label class="flex items-start p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" name="sections" value="introduction" class="mt-1 mr-3 h-5 w-5 text-indigo-600" checked>
+                <div class="flex-1">
+                    <div class="font-semibold text-gray-900">Introduction</div>
+                    <div class="text-sm text-gray-600">Background, motivation, objectives (400-500 words)</div>
+                </div>
+            </label>
+            
+            <!-- Problem Statement -->
+            <label class="flex items-start p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" name="sections" value="problem_statement" class="mt-1 mr-3 h-5 w-5 text-indigo-600" checked>
+                <div class="flex-1">
+                    <div class="font-semibold text-gray-900">Problem Statement</div>
+                    <div class="text-sm text-gray-600">Clear definition of the research problem (300-400 words)</div>
+                </div>
+            </label>
+            
+            <!-- Literature Review -->
+            <label class="flex items-start p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" name="sections" value="literature_review" class="mt-1 mr-3 h-5 w-5 text-indigo-600">
+                <div class="flex-1">
+                    <div class="font-semibold text-gray-900">Literature Review</div>
+                    <div class="text-sm text-gray-600">Overview of existing research (500-600 words)</div>
+                </div>
+            </label>
+            
+            <!-- Methodology -->
+            <label class="flex items-start p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" name="sections" value="methodology" class="mt-1 mr-3 h-5 w-5 text-indigo-600" checked>
+                <div class="flex-1">
+                    <div class="font-semibold text-gray-900">Methodology</div>
+                    <div class="text-sm text-gray-600">Research design and approach (600-700 words)</div>
+                </div>
+            </label>
+            
+            <!-- Results -->
+            <label class="flex items-start p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" name="sections" value="results" class="mt-1 mr-3 h-5 w-5 text-indigo-600">
+                <div class="flex-1">
+                    <div class="font-semibold text-gray-900">Results and Discussion</div>
+                    <div class="text-sm text-gray-600">Experimental results, analysis, and discussion (600-700 words)</div>
+                </div>
+            </label>
+            
+            <!-- Conclusion -->
+            <label class="flex items-start p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" name="sections" value="conclusion" class="mt-1 mr-3 h-5 w-5 text-indigo-600">
+                <div class="flex-1">
+                    <div class="font-semibold text-gray-900">Conclusion</div>
+                    <div class="text-sm text-gray-600">Summary and key contributions (350-400 words)</div>
+                </div>
+            </label>
+            
+            <!-- Future Work -->
+            <label class="flex items-start p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" name="sections" value="future_work" class="mt-1 mr-3 h-5 w-5 text-indigo-600">
+                <div class="flex-1">
+                    <div class="font-semibold text-gray-900">Future Work</div>
+                    <div class="text-sm text-gray-600">Future research directions (250-300 words)</div>
+                </div>
+            </label>
+            
+            <!-- References -->
+            <label class="flex items-start p-4 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input type="checkbox" name="sections" value="references" class="mt-1 mr-3 h-5 w-5 text-indigo-600">
+                <div class="flex-1">
+                    <div class="font-semibold text-gray-900">References (Sample)</div>
+                    <div class="text-sm text-gray-600">Generate sample reference format examples</div>
+                </div>
+            </label>
+        </div>
+        
+        <!-- Warning -->
+        <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div class="flex items-start">
+                <i class="fas fa-clock text-yellow-600 mt-1 mr-3"></i>
+                <div class="text-sm text-yellow-800">
+                    <p class="font-semibold mb-1">This may take a minute</p>
+                    <p>AI generation requires processing time. Please be patient while sections are created.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="mt-8 flex items-center justify-between">
+            <a href="{{ url_for('ai_paper.view', paper_id=paper.id) }}" class="text-gray-600 hover:text-gray-800">
+                <i class="fas fa-arrow-left mr-1"></i> Back to Paper
+            </a>
+            <button type="submit"
+                    class="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition flex items-center">
+                <i class="fas fa-magic mr-2"></i>
+                Generate with AI
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Select all checkboxes by default
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('input[name="sections"]');
+    checkboxes.forEach(cb => {
+        if (!cb.hasAttribute('checked')) {
+            // Optionally check all
+            // cb.checked = true;
+        }
+    });
+});
+</script>
+{% endblock %}

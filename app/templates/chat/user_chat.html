@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Chat with {{ chat_user.name }} - ResearchHub AI{% endblock %}
+
+{% block extra_head %}
+<meta name="description" content="Chat with {{ chat_user.name }} on ResearchHub AI. Collaborate on research projects and share ideas.">
+<style>
+    .message-bubble {
+        max-width: 70%;
+        animation: fadeIn 0.3s ease-in;
+    }
+    .chat-container {
+        height: calc(100vh - 250px);
+        min-height: 500px;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Chat Header -->
+    <div class="bg-white rounded-t-lg shadow-md p-4 border-b border-gray-200">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <a href="{{ url_for('chat.index') }}" 
+                   class="mr-4 text-gray-600 hover:text-indigo-600 transition">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </a>
+                {% if chat_user.avatar_url %}
+                <img src="{{ chat_user.avatar_url }}" alt="{{ chat_user.name }}" 
+                     class="w-12 h-12 rounded-full mr-3">
+                {% else %}
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-semibold text-lg mr-3">
+                    {{ chat_user.name[0].upper() }}
+                </div>
+                {% endif %}
+                
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900">{{ chat_user.name }}</h2>
+                    <p class="text-sm text-gray-500">{{ chat_user.institution or 'Researcher' }}</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <a href="{{ url_for('profile.view', user_id=chat_user.id) }}" 
+                   class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition text-sm">
+                    <i class="fas fa-user mr-2"></i>
+                    View Profile
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chat Messages -->
+    <div id="chat-messages" class="bg-white shadow-md chat-container overflow-y-auto p-6 space-y-4">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="flex {{ 'justify-end' if message.sender_id == current_user.id else 'justify-start' }}">
+                <div class="message-bubble">
+                    <div class="flex items-end {{ 'flex-row-reverse' if message.sender_id == current_user.id else '' }}">
+                        {% if message.sender_id != current_user.id %}
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-sm font-semibold mr-2 flex-shrink-0">
+                            {{ chat_user.name[0].upper() }}
+                        </div>
+                        {% endif %}
+                        
+                        <div>
+                            <div class="px-4 py-2 rounded-2xl {{ 'bg-indigo-600 text-white' if message.sender_id == current_user.id else 'bg-gray-200 text-gray-800' }}">
+                                <p class="text-sm whitespace-pre-wrap">{{ message.content }}</p>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1 {{ 'text-right' if message.sender_id == current_user.id else '' }}">
+                                {{ message.created_at.strftime('%I:%M %p') }}
+                            </p>
+                        </div>
+                        
+                        {% if message.sender_id == current_user.id %}
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white text-sm font-semibold ml-2 flex-shrink-0">
+                            {{ current_user.name[0].upper() }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-12">
+                <i class="fas fa-comments text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500">No messages yet. Start the conversation!</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Message Input -->
+    <div class="bg-white rounded-b-lg shadow-md p-4 border-t border-gray-200">
+        <form id="message-form" class="flex items-end space-x-3">
+            <div class="flex-1">
+                <textarea id="message-input" 
+                          rows="2" 
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                          placeholder="Type your message..."
+                          required></textarea>
+            </div>
+            <button type="submit" 
+                    class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center h-10">
+                <i class="fas fa-paper-plane mr-2"></i>
+                Send
+            </button>
+        </form>
+        
+        <p class="text-xs text-gray-500 mt-2">
+            <i class="fas fa-info-circle mr-1"></i>
+            Press Enter to send, Shift+Enter for new line
+        </p>
+    </div>
+</div>
+
+<script>
+const chatUser = {{ chat_user.id }};
+const currentUser = {{ current_user.id }};
+const messagesContainer = document.getElementById('chat-messages');
+const messageForm = document.getElementById('message-form');
+const messageInput = document.getElementById('message-input');
+
+// Scroll to bottom
+function scrollToBottom() {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+scrollToBottom();
+
+// Socket.IO connection
+const socket = io();
+
+socket.on('connect', function() {
+    console.log('Connected to chat server');
+});
+
+// Receive new messages
+socket.on('new_message', function(data) {
+    if ((data.sender_id === chatUser && data.recipient_id === currentUser) ||
+        (data.sender_id === currentUser && data.recipient_id === chatUser)) {
+        addMessageToChat(data);
+    }
+});
+
+// Send message
+messageForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const content = messageInput.value.trim();
+    if (!content) return;
+    
+    fetch('/api/messages/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            recipient_id: chatUser,
+            content: content
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            messageInput.value = '';
+            addMessageToChat({
+                sender_id: currentUser,
+                content: content,
+                created_at: new Date().toISOString()
+            });
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+// Add message to chat
+function addMessageToChat(message) {
+    const isOwn = message.sender_id === currentUser;
+    const time = new Date(message.created_at).toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'});
+    
+    const messageHtml = `
+        <div class="flex ${isOwn ? 'justify-end' : 'justify-start'}">
+            <div class="message-bubble">
+                <div class="flex items-end ${isOwn ? 'flex-row-reverse' : ''}">
+                    ${!isOwn ? `
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-sm font-semibold mr-2 flex-shrink-0">
+                        {{ chat_user.name[0].upper() }}
+                    </div>
+                    ` : ''}
+                    
+                    <div>
+                        <div class="px-4 py-2 rounded-2xl ${isOwn ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800'}">
+                            <p class="text-sm whitespace-pre-wrap">${message.content}</p>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1 ${isOwn ? 'text-right' : ''}">${time}</p>
+                    </div>
+                    
+                    ${isOwn ? `
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white text-sm font-semibold ml-2 flex-shrink-0">
+                        {{ current_user.name[0].upper() }}
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
+    scrollToBottom();
+}
+
+// Keyboard shortcuts
+messageInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        messageForm.dispatchEvent(new Event('submit'));
+    }
+});
+</script>
+{% endblock %}

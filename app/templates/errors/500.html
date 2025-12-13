@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Error{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full">
+        <div class="text-center">
+            <i class="fas fa-server text-6xl text-red-500 mb-4"></i>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">500 - Server Error</h1>
+            <p class="text-gray-600 mb-6">Something went wrong. Please try again later.</p>
+            <a href="{{ url_for('dashboard.index') }}" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition">
+                <i class="fas fa-home mr-2"></i> Go to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

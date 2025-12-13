@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Register - ResearchHub AI{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div>
+            <div class="text-center">
+                <i class="fas fa-flask text-5xl text-indigo-600 mb-4"></i>
+                <h2 class="text-3xl font-bold text-gray-900">
+                    Create Account
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Join the AI-powered research community
+                </p>
+            </div>
+        </div>
+        
+        <form class="mt-8 space-y-6" method="POST" action="{{ url_for('auth.register') }}">
+            <div class="space-y-4">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                        Full Name *
+                    </label>
+                    <input id="name" name="name" type="text" required
+                           class="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                           placeholder="John Doe">
+                </div>
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                        Email Address *
+                    </label>
+                    <input id="email" name="email" type="email" required
+                           class="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                           placeholder="your@email.com">
+                </div>
+                
+                <div>
+                    <label for="institution" class="block text-sm font-medium text-gray-700 mb-1">
+                        Institution
+                    </label>
+                    <input id="institution" name="institution" type="text"
+                           class="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                           placeholder="University or Organization">
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+                        Password *
+                    </label>
+                    <input id="password" name="password" type="password" required minlength="6"
+                           class="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                           placeholder="••••••••">
+                    <p class="mt-1 text-xs text-gray-500">Minimum 6 characters</p>
+                </div>
+            </div>
+            
+            <div>
+                <button type="submit"
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Create Account
+                </button>
+            </div>
+            
+            <div class="text-center">
+                <p class="text-sm text-gray-600">
+                    Already have an account?
+                    <a href="{{ url_for('auth.login') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        Login here
+                    </a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

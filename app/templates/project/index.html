@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}My Projects - ResearchHub AI{% endblock %}
+
+{% block extra_head %}
+<meta name="description" content="Manage your research projects and collaborate with your team on ResearchHub AI.">
+<meta name="keywords" content="research projects, project management, team collaboration, academic projects">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Page Header -->
+    <div class="mb-8 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-project-diagram text-indigo-600 mr-2"></i>
+                My Projects
+            </h1>
+            <p class="text-gray-600">Manage and collaborate on research projects</p>
+        </div>
+        
+        <a href="{{ url_for('project.create') }}" 
+           class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center">
+            <i class="fas fa-plus mr-2"></i>
+            New Project
+        </a>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="mb-6 border-b border-gray-200">
+        <nav class="flex space-x-8">
+            <a href="#" class="py-4 px-1 border-b-2 border-indigo-600 text-indigo-600 font-medium text-sm">
+                <i class="fas fa-briefcase mr-2"></i>
+                My Projects ({{ owned_projects|length }})
+            </a>
+            <a href="#" class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
+                <i class="fas fa-users mr-2"></i>
+                Collaborating ({{ team_projects|length }})
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Projects Grid -->
+    {% if owned_projects or team_projects %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for project in owned_projects %}
+        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition p-6">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                        {{ project.title }}
+                    </h3>
+                    <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full {{ 'bg-green-100 text-green-800' if project.status == 'Active' else 'bg-gray-100 text-gray-800' }}">
+                        {{ project.status }}
+                    </span>
+                </div>
+                <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full">
+                    {{ project.project_type }}
+                </span>
+            </div>
+            
+            <p class="text-sm text-gray-600 mb-4 line-clamp-2">
+                {{ project.abstract or 'No description provided.' }}
+            </p>
+            
+            {% if project.keywords %}
+            <div class="flex flex-wrap gap-2 mb-4">
+                {% for keyword in project.keywords.split(',')[:3] %}
+                <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">
+                    {{ keyword.strip() }}
+                </span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                <span class="text-xs text-gray-500">
+                    <i class="fas fa-calendar mr-1"></i>
+                    {{ project.created_at.strftime('%b %d, %Y') }}
+                </span>
+                
+                <div class="flex gap-2">
+                    <a href="{{ url_for('project.view', project_id=project.id) }}" 
+                       class="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700 transition">
+                        View
+                    </a>
+                    <a href="{{ url_for('chat.project_chat', project_id=project.id) }}" 
+                       class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition">
+                        <i class="fas fa-comment"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% for project in team_projects %}
+        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition p-6 border-l-4 border-purple-500">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                        {{ project.title }}
+                    </h3>
+                    <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full {{ 'bg-green-100 text-green-800' if project.status == 'Active' else 'bg-gray-100 text-gray-800' }}">
+                        {{ project.status }}
+                    </span>
+                </div>
+                <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">
+                    Team
+                </span>
+            </div>
+            
+            <p class="text-sm text-gray-600 mb-4 line-clamp-2">
+                {{ project.abstract or 'No description provided.' }}
+            </p>
+            
+            <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                <span class="text-xs text-gray-500">
+                    <i class="fas fa-users mr-1"></i>
+                    Team Project
+                </span>
+                
+                <div class="flex gap-2">
+                    <a href="{{ url_for('project.view', project_id=project.id) }}" 
+                       class="px-3 py-1 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700 transition">
+                        View
+                    </a>
+                    <a href="{{ url_for('chat.project_chat', project_id=project.id) }}" 
+                       class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition">
+                        <i class="fas fa-comment"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="bg-white rounded-lg shadow-md p-12 text-center">
+        <i class="fas fa-project-diagram text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">No Projects Yet</h3>
+        <p class="text-gray-500 mb-6">Create your first research project to get started!</p>
+        <a href="{{ url_for('project.create') }}" 
+           class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+            <i class="fas fa-plus mr-2"></i>
+            Create Project
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

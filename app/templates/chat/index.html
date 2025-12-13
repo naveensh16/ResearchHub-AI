@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - ResearchHub AI{% endblock %}
+
+{% block extra_head %}
+<meta name="description" content="Connect and collaborate with researchers in real-time. Chat with your team members and colleagues on ResearchHub AI.">
+<meta name="keywords" content="research chat, academic collaboration, researcher messaging, team communication">
+<style>
+    .chat-preview:hover {
+        background-color: #f3f4f6;
+        transform: translateX(5px);
+        transition: all 0.2s ease;
+    }
+    .unread-badge {
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+            <i class="fas fa-comments text-indigo-600 mr-2"></i>
+            Messages
+        </h1>
+        <p class="text-gray-600">Connect and collaborate with researchers in real-time</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Conversations List -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="p-4 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800">
+                        <i class="fas fa-inbox mr-2"></i>
+                        Your Conversations
+                    </h2>
+                </div>
+                
+                <div class="divide-y divide-gray-200">
+                    {% if conversations %}
+                        {% for conv in conversations %}
+                        <a href="{{ url_for('chat.chat_with_user', user_id=conv.user.id) }}" 
+                           class="block p-4 hover:bg-gray-50 transition chat-preview">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    {% if conv.user.avatar_url %}
+                                    <img src="{{ conv.user.avatar_url }}" alt="{{ conv.user.name }}" 
+                                         class="w-12 h-12 rounded-full">
+                                    {% else %}
+                                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-semibold text-lg">
+                                        {{ conv.user.name[0].upper() }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="ml-4 flex-1 min-w-0">
+                                    <div class="flex items-center justify-between">
+                                        <p class="text-sm font-medium text-gray-900 truncate">
+                                            {{ conv.user.name }}
+                                        </p>
+                                        {% if conv.last_message %}
+                                        <p class="text-xs text-gray-500">
+                                            {{ conv.last_message.created_at.strftime('%I:%M %p') }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <p class="text-xs text-gray-500 mb-1">
+                                        {{ conv.user.institution or 'Researcher' }}
+                                    </p>
+                                    
+                                    {% if conv.last_message %}
+                                    <p class="text-sm text-gray-600 truncate">
+                                        {% if conv.last_message.sender_id == current_user.id %}
+                                        <i class="fas fa-reply text-gray-400 mr-1"></i>
+                                        {% endif %}
+                                        {{ conv.last_message.content[:50] }}...
+                                    </p>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if conv.unread_count > 0 %}
+                                <span class="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-500 rounded-full unread-badge">
+                                    {{ conv.unread_count }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="p-12 text-center">
+                            <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500 mb-4">No conversations yet</p>
+                            <a href="{{ url_for('research.discover') }}" 
+                               class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                                <i class="fas fa-search mr-2"></i>
+                                Discover Researchers
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-bolt text-yellow-500 mr-2"></i>
+                    Quick Actions
+                </h3>
+                
+                <div class="space-y-3">
+                    <a href="{{ url_for('research.discover') }}" 
+                       class="flex items-center p-3 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition">
+                        <i class="fas fa-user-plus text-indigo-600 mr-3"></i>
+                        <span class="text-sm font-medium text-gray-800">Find Researchers</span>
+                    </a>
+                    
+                    <a href="{{ url_for('project.index') }}" 
+                       class="flex items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition">
+                        <i class="fas fa-project-diagram text-green-600 mr-3"></i>
+                        <span class="text-sm font-medium text-gray-800">My Projects</span>
+                    </a>
+                    
+                    <a href="{{ url_for('paper.index') }}" 
+                       class="flex items-center p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition">
+                        <i class="fas fa-file-alt text-purple-600 mr-3"></i>
+                        <span class="text-sm font-medium text-gray-800">My Papers</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Project Chats -->
+            {% if projects %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-project-diagram text-blue-500 mr-2"></i>
+                    Project Chats
+                </h3>
+                
+                <div class="space-y-2">
+                    {% for project in projects %}
+                    <a href="{{ url_for('chat.project_chat', project_id=project.id) }}" 
+                       class="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                        <p class="text-sm font-medium text-gray-800 truncate">
+                            {{ project.title }}
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            {{ project.project_type }} Project
+                        </p>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Chat Tips -->
+            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                    Chat Tips
+                </h3>
+                
+                <ul class="space-y-2 text-sm text-gray-600">
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                        <span>Keep conversations professional and focused</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                        <span>Share papers and ideas directly</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
+                        <span>Collaborate in real-time with your team</span>
+                    </li>
+                </ul>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-refresh conversations every 30 seconds
+setInterval(function() {
+    location.reload();
+}, 30000);
+</script>
+{% endblock %}

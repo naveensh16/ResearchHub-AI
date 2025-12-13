@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ paper.title }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0.9in 0.7in;
+        }
+        
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 10pt;
+            line-height: 1.35;
+            color: #000;
+            max-width: 6.8in;
+            margin: 0 auto;
+        }
+        
+        .title-section {
+            text-align: center;
+            margin-bottom: 0.35in;
+        }
+        
+        h1.paper-title {
+            font-size: 16pt;
+            font-weight: bold;
+            margin: 0 0 0.15in 0;
+            line-height: 1.25;
+        }
+        
+        .authors {
+            font-size: 10pt;
+            margin: 0.1in 0;
+        }
+        
+        .affiliation {
+            font-size: 9pt;
+            margin: 0.05in 0;
+        }
+        
+        .email {
+            font-size: 9pt;
+            font-style: italic;
+            margin: 0.05in 0;
+        }
+        
+        .abstract-section {
+            margin: 0.25in 0;
+        }
+        
+        .abstract-heading {
+            font-weight: bold;
+            font-size: 11pt;
+            text-align: center;
+            margin-bottom: 0.1in;
+        }
+        
+        .abstract-content {
+            font-size: 9pt;
+            text-align: justify;
+            margin: 0 0.3in 0.1in 0.3in;
+        }
+        
+        .keywords {
+            font-size: 9pt;
+            text-align: center;
+            margin-top: 0.1in;
+        }
+        
+        .keywords strong {
+            font-weight: bold;
+        }
+        
+        h2 {
+            font-size: 11pt;
+            font-weight: bold;
+            margin: 0.2in 0 0.1in 0;
+            break-after: avoid;
+        }
+        
+        h3 {
+            font-size: 10pt;
+            font-weight: bold;
+            font-style: italic;
+            margin: 0.15in 0 0.08in 0;
+            break-after: avoid;
+        }
+        
+        p {
+            text-align: justify;
+            margin: 0 0 0.1in 0;
+        }
+        
+        .references {
+            font-size: 9pt;
+        }
+        
+        .references p {
+            text-indent: -0.2in;
+            padding-left: 0.2in;
+            margin-bottom: 0.06in;
+        }
+        
+        .section-number {
+            margin-right: 0.12in;
+        }
+        
+        .springer-footer {
+            margin-top: 0.5in;
+            padding-top: 0.15in;
+            border-top: 1px solid #ddd;
+            font-size: 8pt;
+            text-align: center;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <!-- Title Section -->
+    <div class="title-section">
+        <h1 class="paper-title">{{ paper.title }}</h1>
+        <div class="authors">{{ paper.author.name }}</div>
+        <div class="affiliation">{{ paper.author.institution or 'Research Institution' }}</div>
+        <div class="email">{{ paper.author.email }}</div>
+    </div>
+    
+    <!-- Abstract -->
+    {% if paper.abstract %}
+    <div class="abstract-section">
+        <div class="abstract-heading">Abstract</div>
+        <div class="abstract-content">
+            {{ paper.abstract }}
+        </div>
+        {% if paper.keywords %}
+        <div class="keywords">
+            <strong>Keywords:</strong> {{ paper.keywords }}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- Introduction -->
+    {% if paper.introduction %}
+    <h2><span class="section-number">1</span>Introduction</h2>
+    {% for paragraph in paper.introduction.split('\n\n') %}
+        {% if paragraph.strip() %}
+            <p>{{ paragraph.strip() }}</p>
+        {% endif %}
+    {% endfor %}
+    {% endif %}
+    
+    <!-- Problem Statement -->
+    {% if paper.problem_statement %}
+    <h2><span class="section-number">2</span>Problem Statement</h2>
+    {% for paragraph in paper.problem_statement.split('\n\n') %}
+        {% if paragraph.strip() %}
+            <p>{{ paragraph.strip() }}</p>
+        {% endif %}
+    {% endfor %}
+    {% endif %}
+    
+    <!-- Literature Review -->
+    {% if paper.literature_review %}
+    <h2><span class="section-number">3</span>Related Work</h2>
+    {% for paragraph in paper.literature_review.split('\n\n') %}
+        {% if paragraph.strip() %}
+            <p>{{ paragraph.strip() }}</p>
+        {% endif %}
+    {% endfor %}
+    {% endif %}
+    
+    <!-- Methodology -->
+    {% if paper.methodology %}
+    <h2><span class="section-number">4</span>Methodology</h2>
+    {% for paragraph in paper.methodology.split('\n\n') %}
+        {% if paragraph.strip() %}
+            <p>{{ paragraph.strip() }}</p>
+        {% endif %}
+    {% endfor %}
+    {% endif %}
+    
+    <!-- Results -->
+    {% if paper.results %}
+    <h2><span class="section-number">5</span>Results and Discussion</h2>
+    {% for paragraph in paper.results.split('\n\n') %}
+        {% if paragraph.strip() %}
+            <p>{{ paragraph.strip() }}</p>
+        {% endif %}
+    {% endfor %}
+    {% endif %}
+    
+    <!-- Conclusion -->
+    {% if paper.conclusion %}
+    <h2><span class="section-number">{% if paper.results %}6{% else %}5{% endif %}</span>Conclusion</h2>
+    {% for paragraph in paper.conclusion.split('\n\n') %}
+        {% if paragraph.strip() %}
+            <p>{{ paragraph.strip() }}</p>
+        {% endif %}
+    {% endfor %}
+    {% endif %}
+    
+    <!-- Future Work -->
+    {% if paper.future_work %}
+    <h2><span class="section-number">{% if paper.results %}7{% else %}6{% endif %}</span>Future Work</h2>
+    {% for paragraph in paper.future_work.split('\n\n') %}
+        {% if paragraph.strip() %}
+            <p>{{ paragraph.strip() }}</p>
+        {% endif %}
+    {% endfor %}
+    {% endif %}
+    
+    <!-- References -->
+    {% if paper.references %}
+    <h2>References</h2>
+    <div class="references">
+        {% for ref in paper.references.split('\n') %}
+            {% if ref.strip() %}
+                <p>{{ ref.strip() }}</p>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Springer Footer -->
+    <div class="springer-footer">
+        Springer Nature {{ current_year }}
+    </div>
+</body>
+</html>
