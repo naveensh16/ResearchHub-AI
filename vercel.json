@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "app_step2.py",
+      "src": "app_production.py",
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
@@ -16,8 +16,12 @@
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "dest": "/app/static/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "app_step2.py"
+      "dest": "app_production.py"
     }
   ],
   "env": {
