@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "app.py",
+      "src": "app_minimal.py",
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
@@ -16,12 +16,8 @@
   ],
   "routes": [
     {
-      "src": "/static/(.*)",
-      "dest": "/app/static/$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "app.py"
+      "dest": "app_minimal.py"
     }
   ],
   "env": {
