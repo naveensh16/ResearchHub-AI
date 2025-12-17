@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "app_diagnostic.py",
+      "src": "app_test_creation.py",
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
@@ -17,7 +17,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "app_diagnostic.py"
+      "dest": "app_test_creation.py"
     }
   ],
   "env": {
