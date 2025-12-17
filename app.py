@@ -2,8 +2,11 @@
 from app import create_app
 import os
 
-# Create the Flask application instance
-app = create_app()
+# Set Vercel environment flag
+os.environ['VERCEL'] = '1'
+
+# Create the Flask application instance for production
+app = create_app('production')
 
 # This is required for Vercel
 if __name__ == "__main__":

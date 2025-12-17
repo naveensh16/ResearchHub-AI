@@ -58,6 +58,14 @@ class ProductionConfig(Config):
     TESTING = False
     SESSION_COOKIE_SECURE = True
     
+    # Use PostgreSQL in production or fallback to SQLite
+    # For Vercel, you should set DATABASE_URL in environment variables
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or Config.SQLALCHEMY_DATABASE_URI
+    SQLALCHEMY_ECHO = False
+    
+    # Disable SocketIO in serverless (Vercel doesn't support WebSockets well)
+    SOCKETIO_ASYNC_MODE = None
+    
 class TestingConfig(Config):
     """Testing configuration"""
     TESTING = True

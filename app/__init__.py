@@ -1,6 +1,7 @@
 """
 ResearchHub AI - Flask Application Factory
 """
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -54,10 +55,11 @@ def create_app(config_name='development'):
     from app.sockets import chat_events
     chat_events.register_handlers(socketio)
     
-    # Create database tables
-    with app.app_context():
-        db.create_all()
-        print("✅ Database tables created successfully!")
+    # Create database tables (skip in serverless environments)
+    if not os.environ.get('VERCEL'):
+        with app.app_context():
+            db.create_all()
+            print("✅ Database tables created successfully!")
     
     # Register error handlers
     register_error_handlers(app)
