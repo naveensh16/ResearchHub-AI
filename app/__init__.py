@@ -16,7 +16,22 @@ socketio = SocketIO(cors_allowed_origins="*")
 
 def create_app(config_name='development'):
     """Application factory pattern"""
-    app = Flask(__name__)
+    instance_path = None
+    if os.environ.get('VERCEL'):
+        # Vercel file system is read-only except /tmp
+        instance_path = '/tmp/researchhub-instance'
+    elif os.environ.get('FLASK_INSTANCE_PATH'):
+        instance_path = os.environ.get('FLASK_INSTANCE_PATH')
+
+    if instance_path:
+        app = Flask(__name__, instance_path=instance_path)
+        try:
+            os.makedirs(app.instance_path, exist_ok=True)
+        except OSError:
+            # Ignore if directory cannot be created (may already exist or be read-only)
+            pass
+    else:
+        app = Flask(__name__)
     
     # Load configuration
     app.config.from_object(config[config_name])
