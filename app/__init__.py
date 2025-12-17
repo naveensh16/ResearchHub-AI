@@ -51,9 +51,10 @@ def create_app(config_name='development'):
     app.register_blueprint(ai_paper.bp)
     app.register_blueprint(dashboard.bp)
     
-    # Register SocketIO events
-    from app.sockets import chat_events
-    chat_events.register_handlers(socketio)
+    # Register SocketIO events (skip in serverless)
+    if not os.environ.get('VERCEL'):
+        from app.sockets import chat_events
+        chat_events.register_handlers(socketio)
     
     # Create database tables (skip in serverless environments)
     if not os.environ.get('VERCEL'):

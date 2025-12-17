@@ -1,0 +1,33 @@
+# ResearchHub AI - Advanced Features Requirements
+
+## New Dependencies for Competitive Advantages
+
+# RAG (Retrieval-Augmented Generation) for AI Research Assistant
+langchain-openai==0.0.2
+langchain-community==0.0.13
+chromadb==0.4.22
+sentence-transformers==2.2.2
+faiss-cpu==1.7.4
+
+# Citation Network Analysis
+networkx==3.2.1
+pyvis==0.3.2
+py2neo==2021.2.3  # Neo4j driver
+
+# Blockchain for Contribution Tracking
+web3==6.15.1
+eth-account==0.10.0
+
+# Real-time Collaborative Editing
+operational-transform==0.1.1
+diff-match-patch==20230430
+
+# Peer Review Matching (NLP)
+scikit-learn==1.3.2
+gensim==4.3.2
+spacy==3.7.2
+
+# Additional utilities
+arxiv==2.1.0
+scholarly==1.7.11
+requests==2.31.0

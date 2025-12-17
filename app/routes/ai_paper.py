@@ -5,7 +5,6 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 from flask_login import login_required, current_user
 from app import db
 from app.models import Paper, Project, AIReview
-from app.services.ai_service import AIService
 from datetime import datetime
 import json
 from io import BytesIO
@@ -19,9 +18,17 @@ except (ImportError, OSError) as e:
     print(f"⚠️  WeasyPrint not available: {e}")
     print("   PDF export will not work. Install GTK runtime to enable.")
 
-bp = Blueprint('ai_paper', __name__, url_prefix='/paper')
+# Lazy import AI service to avoid initialization errors in serverless
+try:
+    from app.services.ai_service import AIService
+    ai_service = AIService()
+    AI_AVAILABLE = True
+except Exception as e:
+    print(f"⚠️  AI Service not available: {e}")
+    ai_service = None
+    AI_AVAILABLE = False
 
-ai_service = AIService()
+bp = Blueprint('ai_paper', __name__, url_prefix='/paper')
 
 @bp.route('/')
 @login_required
@@ -108,6 +115,11 @@ def generate(paper_id):
             flash('Please select at least one section to generate.', 'warning')
             return render_template('paper/generate.html', paper=paper)
         
+        # Check if AI service is available
+        if not AI_AVAILABLE or ai_service is None:
+            flash('AI service is not available. Please configure AI provider.', 'danger')
+            return render_template('paper/generate.html', paper=paper)
+        
         try:
             # Generate sections using AI
             generated_content = ai_service.generate_paper_sections(
@@ -188,6 +200,10 @@ def improve_section(paper_id):
     if not section:
         return jsonify({'success': False, 'message': 'Section required'}), 400
     
+    # Check if AI service is available
+    if not AI_AVAILABLE or ai_service is None:
+        return jsonify({'success': False, 'message': 'AI service not available'}), 503
+    
     try:
         improved_text = ai_service.improve_text(
             section_name=section,
@@ -215,6 +231,11 @@ def review(paper_id):
     
     if paper.author_id != current_user.id:
         flash('You do not have permission to review this paper.', 'warning')
+        return redirect(url_for('ai_paper.view', paper_id=paper_id))
+    
+    # Check if AI service is available
+    if not AI_AVAILABLE or ai_service is None:
+        flash('AI service is not available. Please configure AI provider.', 'danger')
         return redirect(url_for('ai_paper.view', paper_id=paper_id))
     
     try:
