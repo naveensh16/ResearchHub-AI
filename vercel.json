@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "app_production.py",
+      "src": "app_diagnostic.py",
       "use": "@vercel/python",
       "config": {
         "maxLambdaSize": "15mb",
@@ -16,12 +16,8 @@
   ],
   "routes": [
     {
-      "src": "/static/(.*)",
-      "dest": "/app/static/$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "app_production.py"
+      "dest": "app_diagnostic.py"
     }
   ],
   "env": {
