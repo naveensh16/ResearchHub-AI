@@ -518,9 +518,7 @@ If you find this project useful, please consider:
 
 <div align="center">
 
-**Built with ❤️ for the Research Community**
 
-*Empowering researchers with AI-powered tools*
 
 [⬆ Back to Top](#-researchhub-ai)
 
